@@ -1,3 +1,6 @@
+[submodule "ext/veldrid"]
+	path = ext/veldrid
+	url = https://github.com/Doom2fan/veldrid
 [submodule "ext/SPIRV-Cross"]
 	path = ext/SPIRV-Cross
 	url = https://github.com/KhronosGroup/SPIRV-Cross
