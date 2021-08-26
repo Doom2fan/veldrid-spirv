@@ -1,0 +1,122 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  SPIRVNATIVE_CMAKEOPTS: "-DSHADERC_SKIP_INSTALL=ON -DSHADERC_SKIP_TESTS=ON -DSPIRV_CROSS_SKIP_INSTALL=ON"
+  PROJ_DIR: "src\Veldrid.SPIRV"
+
+jobs:
+  build_native_linux:
+    name: Build native on linux
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: recursive
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake $SPIRVNATIVE_CMAKEOPTS ../
+          make install
+      - uses: actions/upload-artifact@master
+        with:
+          name: linux-x64
+          path: runtimes/linux-x64
+
+  build_native_macos:
+    name: Build native on macOS
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: recursive
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake $SPIRVNATIVE_CMAKEOPTS -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 ../
+          make install
+      - uses: actions/upload-artifact@master
+        with:
+          name: osx-x64
+          path: runtimes/osx-x64
+
+  build_native_windows:
+    name: Build native on Windows
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: recursive
+
+      - name: setup-msbuild
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake %SPIRVNATIVE_CMAKEOPTS% ../
+          msbuild /v:m /p:Configuration=Release INSTALL.vcxproj
+      - uses: actions/upload-artifact@master
+        with:
+          name: win-x64
+          path: runtimes/win-x64
+
+  build_wrapper:
+    name: Build C# wrapper
+    runs-on: ubuntu-latest
+    needs: [build_native_linux, build_native_macos, build_native_windows]
+
+    steps:
+      - uses: actions/checkout@v1
+
+      # Fetch native binaries
+      - name: Grab linux binary
+        uses: actions/download-artifact@master
+        with:
+          name: linux-x64
+          path: runtimes/linux-x64
+      - name: Grab macOS binary
+        uses: actions/download-artifact@master
+        with:
+          name: osx-x64
+          path: runtimes/osx-x64
+      - name: Grab Windows binary
+        uses: actions/download-artifact@master
+        with:
+          name: win-x64
+          path: runtimes/win-x64
+
+      # Build and pack library, upload artifacts
+      - name: Get version, build, and pack
+        run: |
+          export NUGET_SOURCE=https://www.myget.org/F/pbeta-echelon/api/v2/package
+          export NUGET_SYMBOLSSOURCE=https://www.myget.org/F/pbeta-echelon/api/v3/index.json
+          export PROJ_NAME=Veldrid.SPIRV.csproj
+
+          echo Building and packing...
+          dotnet pack --include-symbols -p:SymbolPackageFormat=snupkg -c Release $PROJ_DIR/$PROJ_NAME
+
+          echo Publishing MyGet package...
+          dotnet nuget push $PROJ_DIR/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} --source $NUGET_SOURCE
+
+          echo Publishing MyGet symbols package...
+          dotnet nuget push $PROJ_DIR/bin/Release/*.snupkg -k ${{ secrets.NUGET_API_KEY }} --source $NUGET_SYMBOLSSOURCE
+      - uses: actions/upload-artifact@v2.2.4
+        with:
+          name: nuget-package
+          path: |
+            ${{ env.PROJ_DIR }}/bin/Release/*.nupkg
+            ${{ env.PROJ_DIR }}/bin/Release/*.snupkg

@@ -42,3 +42,21 @@ set_target_properties(veldrid-spirv PROPERTIES XCODE_ATTRIBUTE_ENABLE_BITCODE "N
 if (DEFINED IOS_PLATFORM)
     shaderc_combine_static_lib(veldrid-spirv-combined veldrid-spirv)
 endif()
+
+if (MSVC)
+    set(RUNTIME_DIR "win")
+elseif (APPLE)
+    set(RUNTIME_DIR "osx")
+else()
+    set(RUNTIME_DIR "linux")
+endif()
+
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(RUNTIME_DIR "${RUNTIME_DIR}-x64")
+elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
+    set(RUNTIME_DIR "${RUNTIME_DIR}-x86")
+endif()
+
+install(TARGETS veldrid-spirv
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/runtimes/${RUNTIME_DIR}/native
+)
