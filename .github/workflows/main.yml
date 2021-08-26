@@ -13,93 +13,93 @@ env:
   PROJ_DIR: "src/Veldrid.SPIRV"
 
 jobs:
-  build_native_linux:
-    name: Build native on Linux
-    runs-on: ubuntu-18.04
+  # build_native_linux:
+  #   name: Build native on Linux
+  #   runs-on: ubuntu-18.04
 
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         submodules: recursive
 
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
+  #     - uses: actions/setup-python@v2
+  #       with:
+  #         python-version: '3.x'
 
-      - name: Build
-        run: |
-          ./ext/sync-shaderc.sh
+  #     - name: Build
+  #       run: |
+  #         ./ext/sync-shaderc.sh
 
-          mkdir build
-          cd build
-          cmake $SPIRVNATIVE_CMAKEOPTS ../
-          make -j8 install
-      - uses: actions/upload-artifact@master
-        with:
-          name: linux-x64
-          path: runtimes/linux-x64
+  #         mkdir build
+  #         cd build
+  #         cmake $SPIRVNATIVE_CMAKEOPTS ../
+  #         make -j8 install
+  #     - uses: actions/upload-artifact@master
+  #       with:
+  #         name: linux-x64
+  #         path: runtimes/linux-x64
 
-  build_native_macos:
-    name: Build native on macOS
-    runs-on: macos-latest
+  # build_native_macos:
+  #   name: Build native on macOS
+  #   runs-on: macos-latest
 
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         submodules: recursive
 
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
+  #     - uses: actions/setup-python@v2
+  #       with:
+  #         python-version: '3.x'
 
-      - name: Build
-        run: |
-          ./ext/sync-shaderc.sh
+  #     - name: Build
+  #       run: |
+  #         ./ext/sync-shaderc.sh
 
-          mkdir build
-          cd build
-          cmake $SPIRVNATIVE_CMAKEOPTS -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 ../
-          make -j8 install
+  #         mkdir build
+  #         cd build
+  #         cmake $SPIRVNATIVE_CMAKEOPTS -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 ../
+  #         make -j8 install
 
-      - uses: actions/upload-artifact@master
-        with:
-          name: osx-x64
-          path: runtimes/osx-x64
+  #     - uses: actions/upload-artifact@master
+  #       with:
+  #         name: osx-x64
+  #         path: runtimes/osx-x64
 
-  build_native_windows:
-    name: Build native on Windows
-    runs-on: windows-latest
+  # build_native_windows:
+  #   name: Build native on Windows
+  #   runs-on: windows-latest
 
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         submodules: recursive
 
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
+  #     - uses: actions/setup-python@v2
+  #       with:
+  #         python-version: '3.x'
 
-      - name: setup-msbuild
-        uses: microsoft/setup-msbuild@v1
+  #     - name: setup-msbuild
+  #       uses: microsoft/setup-msbuild@v1
 
-      - name: Build
-        run: |
-          ext/sync-shaderc.cmd
+  #     - name: Build
+  #       run: |
+  #         ext/sync-shaderc.cmd
 
-          mkdir build
-          cd build
-          cmake %SPIRVNATIVE_CMAKEOPTS% ../
-          msbuild /maxCpuCount /v:m /p:Configuration=Release INSTALL.vcxproj
+  #         mkdir build
+  #         cd build
+  #         cmake %SPIRVNATIVE_CMAKEOPTS% ../
+  #         msbuild /maxCpuCount /v:m /p:Configuration=Release INSTALL.vcxproj
 
-      - uses: actions/upload-artifact@master
-        with:
-          name: win-x64
-          path: runtimes/win-x64
+  #     - uses: actions/upload-artifact@master
+  #       with:
+  #         name: win-x64
+  #         path: runtimes/win-x64
 
   build_wrapper:
     name: Build C# wrapper
     runs-on: ubuntu-latest
-    needs: [build_native_linux, build_native_macos, build_native_windows]
+    #needs: [build_native_linux, build_native_macos, build_native_windows]
 
     steps:
       - uses: actions/checkout@v2
@@ -108,21 +108,21 @@ jobs:
           fetch-depth: 0 # NBGV needs this
 
       # Fetch native binaries
-      - name: Grab linux binary
-        uses: actions/download-artifact@master
-        with:
-          name: linux-x64
-          path: runtimes/linux-x64
-      - name: Grab macOS binary
-        uses: actions/download-artifact@master
-        with:
-          name: osx-x64
-          path: runtimes/osx-x64
-      - name: Grab Windows binary
-        uses: actions/download-artifact@master
-        with:
-          name: win-x64
-          path: runtimes/win-x64
+      # - name: Grab linux binary
+      #   uses: actions/download-artifact@master
+      #   with:
+      #     name: linux-x64
+      #     path: runtimes/linux-x64
+      # - name: Grab macOS binary
+      #   uses: actions/download-artifact@master
+      #   with:
+      #     name: osx-x64
+      #     path: runtimes/osx-x64
+      # - name: Grab Windows binary
+      #   uses: actions/download-artifact@master
+      #   with:
+      #     name: win-x64
+      #     path: runtimes/win-x64
 
       # Build and pack library, upload artifacts
       - name: Get version, build, and pack
@@ -135,13 +135,13 @@ jobs:
           dotnet pack --include-symbols -p:SymbolPackageFormat=snupkg -c Release $PROJ_DIR/$PROJ_NAME
 
           echo Publishing MyGet package...
-          dotnet nuget push $PROJ_DIR/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} --source $NUGET_SOURCE
+          dotnet nuget push bin/Packages/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} --source $NUGET_SOURCE
 
           echo Publishing MyGet symbols package...
-          dotnet nuget push $PROJ_DIR/bin/Release/*.snupkg -k ${{ secrets.NUGET_API_KEY }} --source $NUGET_SYMBOLSSOURCE
+          dotnet nuget push bin/Packages/Release/*.snupkg -k ${{ secrets.NUGET_API_KEY }} --source $NUGET_SYMBOLSSOURCE
       - uses: actions/upload-artifact@v2.2.4
         with:
           name: nuget-package
           path: |
-            ${{ env.PROJ_DIR }}/bin/Release/*.nupkg
-            ${{ env.PROJ_DIR }}/bin/Release/*.snupkg
+            bin/Packages/Release/*.nupkg
+            bin/Packages/Release/*.snupkg
