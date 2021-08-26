@@ -109,17 +109,17 @@ jobs:
         uses: actions/download-artifact@master
         with:
           name: linux-x64
-          path: download/runtimes/linux-x64
+          path: download/Release/runtimes/linux-x64
       - name: Grab macOS binary
         uses: actions/download-artifact@master
         with:
           name: osx-x64
-          path: download/runtimes/osx-x64
+          path: download/Release/runtimes/osx-x64
       - name: Grab Windows binary
         uses: actions/download-artifact@master
         with:
           name: win-x64
-          path: download/runtimes/win-x64
+          path: download/Release/runtimes/win-x64
 
       # Set up versioning
       - name: Nerdbank.GitVersioning
