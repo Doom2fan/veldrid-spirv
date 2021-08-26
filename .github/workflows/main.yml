@@ -89,7 +89,7 @@ jobs:
           mkdir build
           cd build
           cmake %SPIRVNATIVE_CMAKEOPTS% ../
-          msbuild /axCpuCount /v:m /p:Configuration=Release INSTALL.vcxproj
+          msbuild /maxCpuCount /v:m /p:Configuration=Release INSTALL.vcxproj
 
       - uses: actions/upload-artifact@master
         with:
