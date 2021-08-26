@@ -109,17 +109,17 @@ jobs:
         uses: actions/download-artifact@master
         with:
           name: linux-x64
-          path: runtimes/linux-x64
+          path: download/runtimes/linux-x64
       - name: Grab macOS binary
         uses: actions/download-artifact@master
         with:
           name: osx-x64
-          path: runtimes/osx-x64
+          path: download/runtimes/osx-x64
       - name: Grab Windows binary
         uses: actions/download-artifact@master
         with:
           name: win-x64
-          path: runtimes/win-x64
+          path: download/runtimes/win-x64
 
       # Set up versioning
       - name: Nerdbank.GitVersioning
@@ -137,7 +137,9 @@ jobs:
           export NUGET_SYMBOLSSOURCE=https://www.myget.org/F/pbeta-echelon/api/v3/index.json
           export PROJ_NAME=Veldrid.SPIRV.csproj
 
-          export GIT_BRANCH=${GITHUB_REF#refs/heads/}
+          export NativeAssetsPath=$PWD/download/
+
+          export GIT_BRANCH=${GITHUB_REF#refs/tags/}
           export VERSION=${{ steps.datavars.outputs.version }}
 
           echo $VERSION $GIT_BRANCH
