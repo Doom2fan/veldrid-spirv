@@ -30,7 +30,7 @@ jobs:
           mkdir build
           cd build
           cmake $SPIRVNATIVE_CMAKEOPTS ../
-          make install
+          make -j8 install
       - uses: actions/upload-artifact@master
         with:
           name: linux-x64
@@ -56,7 +56,7 @@ jobs:
           mkdir build
           cd build
           cmake $SPIRVNATIVE_CMAKEOPTS -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 ../
-          make install
+          make -j8 install
 
       - uses: actions/upload-artifact@master
         with:
@@ -86,7 +86,7 @@ jobs:
           mkdir build
           cd build
           cmake %SPIRVNATIVE_CMAKEOPTS% ../
-          msbuild /v:m /p:Configuration=Release INSTALL.vcxproj
+          msbuild /axCpuCount /v:m /p:Configuration=Release INSTALL.vcxproj
 
       - uses: actions/upload-artifact@master
         with:
@@ -100,6 +100,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: recursive
 
       # Fetch native binaries
       - name: Grab linux binary
