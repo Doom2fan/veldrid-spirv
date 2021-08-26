@@ -7,7 +7,7 @@ on:
 
 env:
   SPIRVNATIVE_CMAKEOPTS: "-DSHADERC_SKIP_INSTALL=ON -DSHADERC_SKIP_TESTS=ON -DSPIRV_CROSS_SKIP_INSTALL=ON"
-  PROJ_DIR: "src\Veldrid.SPIRV"
+  PROJ_DIR: "src\\Veldrid.SPIRV"
 
 jobs:
   build_native_linux:
