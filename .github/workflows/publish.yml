@@ -160,13 +160,13 @@ jobs:
           dotnet pack --include-symbols -p:SymbolPackageFormat=snupkg -c Release $PROJ_DIR/$PROJ_NAME
 
           echo Publishing MyGet package...
-          dotnet nuget push $PROJ_DIR/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} --source $NUGET_SOURCE
+          dotnet nuget push bin/Packages/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} --source $NUGET_SOURCE
 
           echo Publishing MyGet symbols package...
-          dotnet nuget push $PROJ_DIR/bin/Release/*.snupkg -k ${{ secrets.NUGET_API_KEY }} --source $NUGET_SYMBOLSSOURCE
+          dotnet nuget push bin/Packages/Release/*.snupkg -k ${{ secrets.NUGET_API_KEY }} --source $NUGET_SYMBOLSSOURCE
       - uses: actions/upload-artifact@v2.2.4
         with:
           name: nuget-package
           path: |
-            ${{ env.PROJ_DIR }}/bin/Release/*.nupkg
-            ${{ env.PROJ_DIR }}/bin/Release/*.snupkg
+            bin/Packages/Release/*.nupkg
+            bin/Packages/Release/*.snupkg
