@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - echelon-changes
   pull_request:
     branches:
-      - master
+      - echelon-changes
 
 env:
   SPIRVNATIVE_CMAKEOPTS: "-DSHADERC_SKIP_INSTALL=ON -DSHADERC_SKIP_TESTS=ON -DSPIRV_CROSS_SKIP_INSTALL=ON"
