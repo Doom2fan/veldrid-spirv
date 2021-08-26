@@ -58,5 +58,5 @@ elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
 endif()
 
 install(TARGETS veldrid-spirv
-    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/runtimes/${RUNTIME_DIR}/native
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/runtimes/${RUNTIME_DIR}
 )

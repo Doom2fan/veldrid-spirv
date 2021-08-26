@@ -9,8 +9,12 @@ on:
       - echelon-changes
 
 env:
-  SPIRVNATIVE_CMAKEOPTS: "-DSHADERC_SKIP_INSTALL=ON -DSHADERC_SKIP_TESTS=ON -DSPIRV_CROSS_SKIP_INSTALL=ON"
+  SPIRVNATIVE_CMAKEOPTS: "-DSHADERC_SKIP_INSTALL=ON -DSHADERC_SKIP_TESTS=ON -DSPIRV_CROSS_SKIP_INSTALL=ON -DCMAKE_BUILD_TYPE=Release"
   PROJ_DIR: "src/Veldrid.SPIRV"
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   build_native_linux:
@@ -28,12 +32,8 @@ jobs:
 
       - name: Build
         run: |
-          ./ext/sync-shaderc.sh
+          bash ./_github_build.sh
 
-          mkdir build
-          cd build
-          cmake $SPIRVNATIVE_CMAKEOPTS ../
-          make -j8 install
       - uses: actions/upload-artifact@master
         with:
           name: linux-x64
@@ -54,12 +54,8 @@ jobs:
 
       - name: Build
         run: |
-          ./ext/sync-shaderc.sh
-
-          mkdir build
-          cd build
-          cmake $SPIRVNATIVE_CMAKEOPTS -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 ../
-          make -j8 install
+          export SPIRVNATIVE_CMAKEOPTS="$SPIRVNATIVE_CMAKEOPTS -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9"
+          bash ./_github_build.sh
 
       - uses: actions/upload-artifact@master
         with:
@@ -69,6 +65,10 @@ jobs:
   build_native_windows:
     name: Build native on Windows
     runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: cmd
 
     steps:
       - uses: actions/checkout@v2
@@ -83,13 +83,8 @@ jobs:
         uses: microsoft/setup-msbuild@v1
 
       - name: Build
-        run: |
-          ext/sync-shaderc.cmd
-
-          mkdir build
-          cd build
-          cmake %SPIRVNATIVE_CMAKEOPTS% ../
-          msbuild /maxCpuCount /v:m /p:Configuration=Release INSTALL.vcxproj
+        run:
+          call _github_build.cmd
 
       - uses: actions/upload-artifact@master
         with:
@@ -112,20 +107,20 @@ jobs:
         uses: actions/download-artifact@master
         with:
           name: linux-x64
-          path: download/Release/runtimes/linux-x64
+          path: download/Release/linux-x64
       - name: Grab macOS binary
         uses: actions/download-artifact@master
         with:
           name: osx-x64
-          path: download/Release/runtimes/osx-x64
+          path: download/Release/osx-x64
       - name: Grab Windows binary
         uses: actions/download-artifact@master
         with:
           name: win-x64
-          path: download/Release/runtimes/win-x64
+          path: download/Release/win-x64
 
       # Build and pack library, upload artifacts
-      - name: Get version, build, and pack
+      - name: Build and pack
         run: |
           export NUGET_SOURCE=https://www.myget.org/F/pbeta-echelon/api/v2/package
           export NUGET_SYMBOLSSOURCE=https://www.myget.org/F/pbeta-echelon/api/v3/index.json
