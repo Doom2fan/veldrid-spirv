@@ -44,7 +44,7 @@ namespace Veldrid.SPIRV
 
     public class VariantCompiler
     {
-        private readonly List<string> _shaderSearchPaths = new List<string>();
+        private readonly List<string> _shaderSearchPaths = new();
         private readonly string _outputPath;
 
         public VariantCompiler(List<string> shaderSearchPaths, string outputPath)
@@ -64,7 +64,7 @@ namespace Veldrid.SPIRV
             {
                 bool hasVertex = false;
                 bool hasFragment = false;
-                foreach (var shader in variant.Shaders)
+                foreach (VariantStageDescription shader in variant.Shaders)
                 {
                     hasVertex |= shader.Stage == ShaderStages.Vertex;
                     hasFragment |= shader.Stage == ShaderStages.Fragment;
@@ -90,8 +90,8 @@ namespace Veldrid.SPIRV
 
         private string[] CompileVertexFragment(ShaderVariantDescription variant)
         {
-            List<string> generatedFiles = new List<string>();
-            List<Exception> compilationExceptions = new List<Exception>();
+            List<string> generatedFiles = new();
+            List<Exception> compilationExceptions = new();
             byte[] vsBytes = null;
             byte[] fsBytes = null;
 
@@ -101,7 +101,7 @@ namespace Veldrid.SPIRV
                 try
                 {
                     vsBytes = CompileToSpirv(variant, vertexFileName, ShaderStages.Vertex);
-                    string spvPath = Path.Combine(_outputPath, $"{variant.Name}_{ShaderStages.Vertex.ToString()}.spv");
+                    string spvPath = Path.Combine(_outputPath, $"{variant.Name}_{ShaderStages.Vertex}.spv");
                     File.WriteAllBytes(spvPath, vsBytes);
                     generatedFiles.Add(spvPath);
                 }
@@ -117,7 +117,7 @@ namespace Veldrid.SPIRV
                 try
                 {
                     fsBytes = CompileToSpirv(variant, fragmentFileName, ShaderStages.Fragment);
-                    string spvPath = Path.Combine(_outputPath, $"{variant.Name}_{ShaderStages.Fragment.ToString()}.spv");
+                    string spvPath = Path.Combine(_outputPath, $"{variant.Name}_{ShaderStages.Fragment}.spv");
                     File.WriteAllBytes(spvPath, fsBytes);
                     generatedFiles.Add(spvPath);
                 }
@@ -162,12 +162,12 @@ namespace Veldrid.SPIRV
                         writeReflectionFile = false;
                         string reflectionPath = Path.Combine(_outputPath, $"{variant.Name}_ReflectionInfo.json");
 
-                        JsonSerializer serializer = new JsonSerializer();
+                        JsonSerializer serializer = new();
                         serializer.Formatting = Formatting.Indented;
-                        StringEnumConverter enumConverter = new StringEnumConverter();
+                        StringEnumConverter enumConverter = new();
                         serializer.Converters.Add(enumConverter);
                         using (StreamWriter sw = File.CreateText(reflectionPath))
-                        using (JsonTextWriter jtw = new JsonTextWriter(sw))
+                        using (JsonTextWriter jtw = new(sw))
                         {
                             serializer.Serialize(jtw, result.Reflection);
                         }
@@ -190,19 +190,14 @@ namespace Veldrid.SPIRV
 
         private string GetExtension(CrossCompileTarget target)
         {
-            switch (target)
+            return target switch
             {
-                case CrossCompileTarget.HLSL:
-                    return "hlsl";
-                case CrossCompileTarget.GLSL:
-                    return "glsl";
-                case CrossCompileTarget.ESSL:
-                    return "essl";
-                case CrossCompileTarget.MSL:
-                    return "metal";
-                default:
-                    throw new SpirvCompilationException($"Invalid CrossCompileTarget: {target}");
-            }
+                CrossCompileTarget.HLSL => "hlsl",
+                CrossCompileTarget.GLSL => "glsl",
+                CrossCompileTarget.ESSL => "essl",
+                CrossCompileTarget.MSL => "metal",
+                _ => throw new SpirvCompilationException($"Invalid CrossCompileTarget: {target}"),
+            };
         }
 
         private byte[] CompileToSpirv(
@@ -243,13 +238,13 @@ namespace Veldrid.SPIRV
 
         private string[] CompileCompute(ShaderVariantDescription variant)
         {
-            List<string> generatedFiles = new List<string>();
+            List<string> generatedFiles = new();
             byte[] csBytes = CompileToSpirv(variant, variant.Shaders[0].FileName, ShaderStages.Compute);
-            string spvPath = Path.Combine(_outputPath, $"{variant.Name}_{ShaderStages.Compute.ToString()}.spv");
+            string spvPath = Path.Combine(_outputPath, $"{variant.Name}_{ShaderStages.Compute}.spv");
             File.WriteAllBytes(spvPath, csBytes);
             generatedFiles.Add(spvPath);
 
-            List<Exception> compilationExceptions = new List<Exception>();
+            List<Exception> compilationExceptions = new();
             foreach (CrossCompileTarget target in variant.Targets)
             {
                 try
@@ -261,12 +256,12 @@ namespace Veldrid.SPIRV
 
                     string reflectionPath = Path.Combine(_outputPath, $"{variant.Name}_ReflectionInfo.json");
 
-                    JsonSerializer serializer = new JsonSerializer();
+                    JsonSerializer serializer = new();
                     serializer.Formatting = Formatting.Indented;
-                    StringEnumConverter enumConverter = new StringEnumConverter();
+                    StringEnumConverter enumConverter = new();
                     serializer.Converters.Add(enumConverter);
                     using (StreamWriter sw = File.CreateText(reflectionPath))
-                    using (JsonTextWriter jtw = new JsonTextWriter(sw))
+                    using (JsonTextWriter jtw = new(sw))
                     {
                         serializer.Serialize(jtw, result.Reflection);
                     }

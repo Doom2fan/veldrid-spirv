@@ -12,7 +12,7 @@ namespace Veldrid.SPIRV
     /// </summary>
     public class SpirvReflection
     {
-        private static readonly Lazy<JsonSerializer> s_serializer = new Lazy<JsonSerializer>(CreateSerializer);
+        private static readonly Lazy<JsonSerializer> s_serializer = new(CreateSerializer);
 
         /// <summary>
         /// An array containing a description of each vertex element that is used by the compiled shader set.
@@ -47,10 +47,8 @@ namespace Veldrid.SPIRV
         /// <returns>A new <see cref="SpirvReflection"/> object, deserialized from the file.</returns>
         public static SpirvReflection LoadFromJson(string jsonPath)
         {
-            using (FileStream jsonStream = File.OpenRead(jsonPath))
-            {
-                return LoadFromJson(jsonStream);
-            }
+            using FileStream jsonStream = File.OpenRead(jsonPath);
+            return LoadFromJson(jsonStream);
         }
 
         /// <summary>
@@ -60,18 +58,16 @@ namespace Veldrid.SPIRV
         /// <returns>A new <see cref="SpirvReflection"/> object, deserialized from the stream.</returns>
         public static SpirvReflection LoadFromJson(Stream jsonStream)
         {
-            using (StreamReader sr = new StreamReader(jsonStream))
-            using (JsonTextReader jtr = new JsonTextReader(sr))
-            {
-                return s_serializer.Value.Deserialize<SpirvReflection>(jtr);
-            }
+            using StreamReader sr = new(jsonStream);
+            using JsonTextReader jtr = new(sr);
+            return s_serializer.Value.Deserialize<SpirvReflection>(jtr);
         }
 
         private static JsonSerializer CreateSerializer()
         {
-            JsonSerializer serializer = new JsonSerializer();
+            JsonSerializer serializer = new();
             serializer.Formatting = Formatting.Indented;
-            StringEnumConverter enumConverter = new StringEnumConverter();
+            StringEnumConverter enumConverter = new();
             serializer.Converters.Add(enumConverter);
             return serializer;
         }

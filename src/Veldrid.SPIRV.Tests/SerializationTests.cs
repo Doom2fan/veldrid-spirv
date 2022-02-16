@@ -42,14 +42,12 @@ namespace Veldrid.SPIRV.Tests
   ]
 }";
             byte[] bytes = Encoding.UTF8.GetBytes(SerializedJson);
-            using (MemoryStream ms = new MemoryStream(bytes))
-            {
-                SpirvReflection refl = SpirvReflection.LoadFromJson(ms);
-                Assert.Empty(refl.VertexElements);
-                Assert.Equal(2, refl.ResourceLayouts.Length);
-                Assert.Equal(2, refl.ResourceLayouts[0].Elements.Length);
-                Assert.Single(refl.ResourceLayouts[1].Elements);
-            }
+            using MemoryStream ms = new(bytes);
+            SpirvReflection refl = SpirvReflection.LoadFromJson(ms);
+            Assert.Empty(refl.VertexElements);
+            Assert.Equal(2, refl.ResourceLayouts.Length);
+            Assert.Equal(2, refl.ResourceLayouts[0].Elements.Length);
+            Assert.Single(refl.ResourceLayouts[1].Elements);
         }
     }
 }

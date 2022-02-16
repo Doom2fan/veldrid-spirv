@@ -75,6 +75,6 @@ namespace Veldrid.SPIRV.Tests
         }
 
         private static readonly ResourceLayoutElementDescription UnusedResource
-            = new ResourceLayoutElementDescription() { Options = (ResourceLayoutElementOptions)2 };
+            = new() { Options = (ResourceLayoutElementOptions)2 };
     }
 }

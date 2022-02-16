@@ -31,19 +31,19 @@ namespace Veldrid.SPIRV
             }
 
             ShaderVariantDescription[] descs;
-            JsonSerializer serializer = new JsonSerializer();
+            JsonSerializer serializer = new();
             serializer.Formatting = Formatting.Indented;
-            StringEnumConverter enumConverter = new StringEnumConverter();
+            StringEnumConverter enumConverter = new();
             serializer.Converters.Add(enumConverter);
             using (StreamReader sr = File.OpenText(SetDefinitionPath))
-            using (JsonTextReader jtr = new JsonTextReader(sr))
+            using (JsonTextReader jtr = new(sr))
             {
                 descs = serializer.Deserialize<ShaderVariantDescription[]>(jtr);
             }
 
-            HashSet<string> generatedPaths = new HashSet<string>();
+            HashSet<string> generatedPaths = new();
 
-            VariantCompiler compiler = new VariantCompiler(new List<string>(SearchPaths), OutputPath);
+            VariantCompiler compiler = new(new List<string>(SearchPaths), OutputPath);
             foreach (ShaderVariantDescription desc in descs)
             {
                 string[] newPaths = compiler.Compile(desc);
