@@ -13,42 +13,6 @@ namespace Veldrid.SPIRV.Tests
             Assert.Equal(a.Stages, b.Stages);
         }
 
-        [Theory]
-        [MemberData(nameof(ShaderSetsAndResources))]
-        public void ReflectionFromSpirv_Succeeds(
-            string vertex, string fragment,
-            VertexElementDescription[] verts,
-            ResourceLayoutDescription[] layouts)
-        {
-            byte[] vsBytes = TestUtil.LoadBytes(vertex);
-            byte[] fsBytes = TestUtil.LoadBytes(fragment);
-            VertexFragmentCompilationResult result = SpirvCompilation.CompileVertexFragment(
-                vsBytes,
-                fsBytes,
-                CrossCompileTarget.HLSL,
-                new CrossCompileOptions(false, false, true));
-
-            VertexElementDescription[] reflectedVerts = result.Reflection.VertexElements;
-            Assert.Equal(verts.Length, reflectedVerts.Length);
-            for (int i = 0; i < verts.Length; i++)
-            {
-                Assert.Equal(verts[i], reflectedVerts[i]);
-            }
-
-            ResourceLayoutDescription[] reflectedLayouts = result.Reflection.ResourceLayouts;
-            Assert.Equal(layouts.Length, reflectedLayouts.Length);
-            for (int i = 0; i < layouts.Length; i++)
-            {
-                ResourceLayoutDescription layout = layouts[i];
-                ResourceLayoutDescription reflectedLayout = reflectedLayouts[i];
-                Assert.Equal(layout.Elements.Length, reflectedLayout.Elements.Length);
-                for (int j = 0; j < layout.Elements.Length; j++)
-                {
-                    AssertEqual(layout.Elements[j], reflectedLayout.Elements[j]);
-                }
-            }
-        }
-
         public static IEnumerable<object[]> ShaderSetsAndResources()
         {
             yield return new object[]
