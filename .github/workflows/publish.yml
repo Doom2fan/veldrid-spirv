@@ -19,11 +19,11 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@master
         with:
           submodules: recursive
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@master
         with:
           python-version: '3.x'
 
@@ -41,11 +41,11 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@master
         with:
           submodules: recursive
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@master
         with:
           python-version: '3.x'
 
@@ -68,16 +68,16 @@ jobs:
         shell: cmd
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@master
         with:
           submodules: recursive
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@master
         with:
           python-version: '3.x'
 
       - name: setup-msbuild
-        uses: microsoft/setup-msbuild@v1
+        uses: microsoft/setup-msbuild@master
 
       - name: Build
         run:
@@ -94,7 +94,7 @@ jobs:
     needs: [build_native_linux, build_native_macos, build_native_windows]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@master
         with:
           submodules: recursive
           fetch-depth: 0 # NBGV needs this
@@ -123,7 +123,7 @@ jobs:
 
       - name: Setup data
         id: datavars
-        run: echo "::set-output name=version::$(echo ${{ github.ref }} | cut -d'/' -f3 | tail -c +2)"
+        run: echo "version=$(echo ${{ github.ref }} | cut -d'/' -f3 | tail -c +2)" >> $GITHUB_OUTPUT
 
       - name: Get version and set up
         run: |
@@ -163,7 +163,7 @@ jobs:
 
           echo Publishing MyGet symbols package...
           dotnet nuget push bin/Packages/Release/*.snupkg -k ${{ secrets.NUGET_API_KEY }} --source $NUGET_SYMBOLSSOURCE
-      - uses: actions/upload-artifact@v2.2.4
+      - uses: actions/upload-artifact@master
         with:
           name: nuget-package
           path: |
